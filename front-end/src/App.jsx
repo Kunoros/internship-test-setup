@@ -1,46 +1,41 @@
-// import './App.css'
 import react, { useState } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
-import { useMsal, useMsalAuthentication } from '@azure/msal-react';
+// import { useMsal, useMsalAuthentication } from '@azure/msal-react';
+import { MsalProvider, AuthenticatedTemplate, UnauthenticatedTemplate, useMsal, useMsalAuthentication } from "@azure/msal-react";
 import { InteractionType } from '@azure/msal-browser';
 
-import Layout from './Layout';
-import Home from './Home';
-import Profile from './Profile'
+import Layout from './components/Layout';
+import Home from './pages/Home';
+import Profile from './pages/Profile'
 
-function App() {
+const Pages = () => {
   useMsalAuthentication(InteractionType.Redirect);
-  const [m_strUser, setm_strUser] = useState("");
 
-  const navigate = useNavigate();
+  return (
+    <div>
+      <AuthenticatedTemplate>
+        <Routes>
+          <Route path='/' element={<Layout />} >
+            <Route index element={<Home />} />
+            <Route path='/profile' element={<Profile />} />
+          </Route>
+        </Routes>
+      </AuthenticatedTemplate>
 
-  function Render() {
-
-    const { accounts } = useMsal();
-
-    try {
-      const username = accounts[0].username;
-      setm_strUser(username)
-    } catch (error) {
-
-    }
-  }
-
-  if (m_strUser != "") {
-    // console.log(m_strUser)
-    return (
-      <Routes>
-        <Route path='/' element={<Layout />} >
-          <Route index element={<Home />} />
-          <Route path='/profile' element={<Profile />} />
-        </Route>
-      </Routes>
-    )
-  } else {
-    return <>{Render()}<div>Please wait...</div></>
-  }
-
-
+      <UnauthenticatedTemplate>
+        <h5>Please sign-in to see your profile information.</h5>
+      </UnauthenticatedTemplate>
+    </div>
+  )
 }
 
-export default App
+
+export default function App(msalInstance) {
+  console.log(msalInstance.instance)
+  return (
+    <MsalProvider instance={msalInstance.instance}>
+      <Pages />
+    </MsalProvider>
+  );
+
+}
