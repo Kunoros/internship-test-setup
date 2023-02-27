@@ -1,11 +1,10 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 import random
-import asyncio
 
 app = FastAPI()
 
-origins = ["https://localhost:3000"]
+origins = ["http://localhost:5173"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -54,10 +53,11 @@ def read_roots():
 
 
 @app.get("/api/name")
-async def get_name():
+async def get_name(request: Request):
     response = fetch_one_user()
     if response:
-        return response
+        my_header = request.headers
+        return {"header": my_header, "response": response}
     raise HTTPException(400, "Something went wrong / Bad Request")
 
 
